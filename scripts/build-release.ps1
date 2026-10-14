@@ -1,5 +1,5 @@
 param(
-    [string] $OutputDirectory = (Join-Path $PSScriptRoot '..\dist'),
+    [string] $OutputDirectory = (Join-Path (Join-Path $PSScriptRoot '..') 'dist'),
     [string] $ExpectedVersion = ''
 )
 
