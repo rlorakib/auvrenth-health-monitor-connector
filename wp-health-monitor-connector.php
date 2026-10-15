@@ -5,7 +5,7 @@
  * Version: 0.1.0
  * Requires at least: 6.0
  * Requires PHP: 8.0
- * Author: Md. Rakib Hossen
+ * Author: Auvrenth Studio
  * License: GPL-2.0-or-later
  * Text Domain: wp-health-monitor-connector
  */

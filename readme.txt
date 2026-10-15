@@ -1,5 +1,5 @@
 === Health Monitor Connector ===
-Contributors: rlorakib
+Contributors: auvrenthstudio
 Tags: site health, monitoring, agency
 Requires at least: 6.0
 Tested up to: 7.1
