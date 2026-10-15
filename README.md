@@ -11,6 +11,8 @@ Download the installable `wp-health-monitor-connector.zip` from the [latest GitH
 
 The Connector displays the Manager's validated score, coverage, approved issue statuses and local fix guides in **Settings → Health Connector**. Enable client email notifications there to receive a message when reported issues change or clear. This is off by default and uses the client site's mail setup. The Manager validates the signed report; it does not independently inspect the client's internal configuration.
 
+If the agency uses Pro, its administrator can write feedback after reviewing a client report. The Connector receives the latest message with its next successful report response and displays it on the same settings page. The client can separately opt in to feedback emails for the configured recipient. The message is delivered on the next report, not immediately when the agency saves it.
+
 The Connector sends only a score, coverage, approved issue IDs/statuses and its version. Each request is signed with a per-site secret. The secret is stored encrypted using the client's WordPress salts. Use the Manager's **Revoke** action to disconnect immediately; local disconnect only deletes this site's copy of the credential.
 
 If pairing fails, check HTTPS on both sites, expiry and prior use of the code, REST API access and firewall rules. If reports fail, check the displayed HTTP status and whether the Manager revoked or rotated the connection.

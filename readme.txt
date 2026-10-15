@@ -4,7 +4,7 @@ Tags: site health, monitoring, agency
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.4.0
+Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,9 +20,10 @@ Health Monitor Connector runs on a client site. An administrator pairs it with a
 * Send a score, check coverage and approved issue IDs/statuses in a signed HTTPS report.
 * Show the Manager's validated assessment and relevant next steps in Settings > Health Connector.
 * Optionally email a chosen client recipient when reported issues change or clear.
+* Show agency feedback after the next successful report; optionally email new feedback with a separate client opt-in.
 * Disconnect locally when a connection is no longer needed.
 
-The Manager validates the report and returns the accepted score and issue statuses. It does not independently scan the client's internal configuration. Internal agency notes are not sent back to the client.
+The Manager validates the report and returns the accepted score and issue statuses. It does not independently scan the client's internal configuration. Internal agency notes are not sent back to the client. When the agency uses Pro, a separate feedback message can be returned after its administrator reviews a report.
 
 == Installation ==
 
@@ -58,8 +59,5 @@ Check HTTPS, the Manager URL, REST API access, WP-Cron and whether the agency re
 
 == Changelog ==
 
-= 0.4.0 =
-* Show validated Agency assessments and offer opt-in client issue/recovery email notifications.
-
-= 0.3.0 =
-* Initial separate Connector with encrypted credentials and signed reports.
+= 0.1.0 =
+* Initial separate Connector with encrypted credentials, signed reports, validated Agency assessments, optional client notifications, and agency feedback.

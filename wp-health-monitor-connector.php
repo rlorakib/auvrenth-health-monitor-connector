@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Health Monitor Connector
  * Description: Sends a small signed health summary to a paired WP Health Monitor Manager.
- * Version: 0.4.0
+ * Version: 0.1.0
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: Md. Rakib Hossen
@@ -13,12 +13,15 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 final class WPHMC_Connector {
+	private const VERSION = '0.1.0';
 	private const OPTION = 'wphmc_connection';
 	private const LAST = 'wphmc_last_run';
 	private const CRON = 'wphmc_daily_report';
 	private const ASSESSMENT = 'wphmc_assessment';
+	private const FEEDBACK = 'wphmc_agency_feedback';
 	private const NOTIFY = 'wphmc_notify';
 	private const LAST_NOTIFIED = 'wphmc_last_notified';
+	private const LAST_FEEDBACK_NOTIFIED = 'wphmc_last_feedback_notified';
 	private const GUIDES = array(
 		'https' => array( 'HTTPS configuration', 'Check the site certificate and WordPress URL settings.' ),
 		'core_updates' => array( 'WordPress core updates', 'Back up the site, then review Dashboard > Updates.' ),
@@ -65,6 +68,7 @@ final class WPHMC_Connector {
 		$connection = get_option( self::OPTION, array() );
 		$last = get_option( self::LAST, array() );
 		$assessment = get_option( self::ASSESSMENT, array() );
+		$feedback = get_option( self::FEEDBACK, array() );
 		$notify = get_option( self::NOTIFY, array() );
 		$notice = sanitize_key( $_GET['notice'] ?? '' );
 		$messages = array( 'paired' => 'Connected to the Manager.', 'pair_failed' => 'Pairing failed. Check the HTTPS Manager URL and unused code.', 'sent' => 'Signed report sent. See the Agency assessment below.', 'send_failed' => 'Report or assessment failed. Check the connection and Manager status.', 'disconnected' => 'Local credentials removed. Revoke the site in Manager too.', 'settings_saved' => 'Client notifications saved.' );
@@ -87,7 +91,12 @@ final class WPHMC_Connector {
 				<?php if ( ! empty( $assessment['issues'] ) ) : ?><ul><?php foreach ( $assessment['issues'] as $issue ) : if ( ! isset( self::GUIDES[ $issue['id'] ?? '' ], $issue['status'] ) ) { continue; } $guide = self::GUIDES[ $issue['id'] ]; ?><li><strong><?php echo esc_html( $guide[0] ); ?> (<?php echo esc_html( $issue['status'] ); ?>):</strong> <?php echo esc_html( $guide[1] ); ?></li><?php endforeach; ?></ul><?php else : ?><p>No open issues were reported by the completed checks.</p><?php endif; ?>
 			<?php else : ?><p>No assessment received yet. Send a report, or update the Agency Manager if delivery already succeeded.</p><?php endif; ?>
 			<p class="description">The Agency Manager validates the signed report and returns these results. It does not independently scan this site's internal settings.</p></div>
-			<form class="card" style="max-width:none;padding:20px" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"><h2>Client notifications</h2><input type="hidden" name="action" value="wphmc_action"><input type="hidden" name="operation" value="notify"><?php wp_nonce_field( 'wphmc_notify' ); ?><p><label><input type="checkbox" name="email_enabled" value="1" <?php checked( ! empty( $notify['enabled'] ) ); ?>> Email new or changed issues and recovery</label></p><p><label for="wphmc-email">Recipient</label><br><input id="wphmc-email" type="email" class="regular-text" name="email" value="<?php echo esc_attr( $notify['email'] ?? get_option( 'admin_email' ) ); ?>"></p><button type="submit" class="button">Save notifications</button><p class="description">Only changes to issue status trigger email. Delivery depends on this site's mail setup.</p></form>
+			<div class="card" style="max-width:none;padding:20px"><h2>Agency feedback</h2>
+			<?php if ( is_array( $feedback ) && ! empty( $feedback['id'] ) && ! empty( $feedback['message'] ) ) : ?>
+				<p><strong>For report (UTC <?php echo esc_html( $feedback['report_at'] ); ?>); sent by agency (UTC <?php echo esc_html( $feedback['created_at'] ); ?>):</strong></p><p><?php echo nl2br( esc_html( $feedback['message'] ) ); ?></p>
+			<?php else : ?><p>Your agency has not sent feedback yet.</p><?php endif; ?>
+			<p class="description">Feedback arrives when this Connector sends its next report. Select Send report now to check for new feedback.</p></div>
+			<form class="card" style="max-width:none;padding:20px" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"><h2>Client notifications</h2><input type="hidden" name="action" value="wphmc_action"><input type="hidden" name="operation" value="notify"><?php wp_nonce_field( 'wphmc_notify' ); ?><p><label><input type="checkbox" name="email_enabled" value="1" <?php checked( ! empty( $notify['enabled'] ) ); ?>> Email new or changed issues and recovery</label></p><p><label><input type="checkbox" name="feedback_email_enabled" value="1" <?php checked( ! empty( $notify['feedback_enabled'] ) ); ?>> Email new agency feedback</label></p><p><label for="wphmc-email">Recipient</label><br><input id="wphmc-email" type="email" class="regular-text" name="email" value="<?php echo esc_attr( $notify['email'] ?? get_option( 'admin_email' ) ); ?>"></p><button type="submit" class="button">Save notifications</button><p class="description">These email options are separate. Delivery depends on this site's mail setup.</p></form>
 		<?php else : ?>
 			<form class="card" style="max-width:none;padding:20px" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"><h2>Pair with an agency Manager</h2><p>Enable Agency Manager on a public HTTPS WordPress site, generate a code there, and enter it here within 10 minutes.</p><input type="hidden" name="action" value="wphmc_action"><input type="hidden" name="operation" value="pair"><?php wp_nonce_field( 'wphmc_pair' ); ?><p><label for="wphmc-manager">Manager site URL</label><br><input id="wphmc-manager" type="url" class="regular-text" name="manager_url" placeholder="https://agency.example.com" required></p><p><label for="wphmc-code">Pairing code</label><br><input id="wphmc-code" type="text" class="regular-text" name="code" minlength="32" maxlength="32" autocomplete="off" required></p><button type="submit" class="button button-primary">Connect</button><?php if ( ! empty( $last['result'] ) ) : ?><p>Last attempt: <?php echo esc_html( $last['result'] ); ?></p><?php endif; ?><p class="description">If pairing fails, check that both sites use public HTTPS, the code is unused, and the Manager REST API is reachable.</p></form>
 		<?php endif; ?></div>
@@ -107,11 +116,11 @@ final class WPHMC_Connector {
 		elseif ( 'send' === $operation ) { $notice = is_wp_error( self::send() ) ? 'send_failed' : 'sent'; }
 		elseif ( 'notify' === $operation ) {
 			$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
-			if ( ! empty( $_POST['email_enabled'] ) && ! is_email( $email ) ) { wp_die( 'Enter a valid notification email.', '', array( 'response' => 400 ) ); }
-			update_option( self::NOTIFY, array( 'enabled' => ! empty( $_POST['email_enabled'] ), 'email' => is_email( $email ) ? $email : '' ), false );
+			if ( ( ! empty( $_POST['email_enabled'] ) || ! empty( $_POST['feedback_email_enabled'] ) ) && ! is_email( $email ) ) { wp_die( 'Enter a valid notification email.', '', array( 'response' => 400 ) ); }
+			update_option( self::NOTIFY, array( 'enabled' => ! empty( $_POST['email_enabled'] ), 'feedback_enabled' => ! empty( $_POST['feedback_email_enabled'] ), 'email' => is_email( $email ) ? $email : '' ), false );
 			$notice = 'settings_saved';
 		}
-		elseif ( 'disconnect' === $operation ) { delete_option( self::OPTION ); delete_option( self::ASSESSMENT ); delete_option( self::LAST_NOTIFIED ); $notice = 'disconnected'; }
+		elseif ( 'disconnect' === $operation ) { delete_option( self::OPTION ); delete_option( self::ASSESSMENT ); delete_option( self::FEEDBACK ); delete_option( self::LAST_NOTIFIED ); delete_option( self::LAST_FEEDBACK_NOTIFIED ); $notice = 'disconnected'; }
 		else { wp_die( 'Invalid action', '', array( 'response' => 400 ) ); }
 		wp_safe_redirect( add_query_arg( array( 'page' => 'wphmc-connector', 'notice' => $notice ), admin_url( 'options-general.php' ) ) );
 		exit;
@@ -139,7 +148,9 @@ final class WPHMC_Connector {
 			if ( false === $encrypted ) { break; }
 			update_option( self::OPTION, array( 'manager_url' => $base, 'report_url' => $report_url, 'site_id' => (int) $data['site_id'], 'secret' => $encrypted ), false );
 			delete_option( self::ASSESSMENT );
+			delete_option( self::FEEDBACK );
 			delete_option( self::LAST_NOTIFIED );
+			delete_option( self::LAST_FEEDBACK_NOTIFIED );
 			return true;
 		}
 		return new \WP_Error( $last_status ? 'wphmc_pair_http_' . $last_status : 'wphmc_pair_unreachable', 'The Manager did not complete pairing.' );
@@ -177,9 +188,17 @@ final class WPHMC_Connector {
 			update_option( self::LAST, array( 'time' => current_time( 'mysql', true ), 'result' => 'Invalid Agency assessment' ), false );
 			return new \WP_Error( 'wphmc_bad_assessment', 'The Manager accepted the report but returned an invalid assessment.' );
 		}
+		if ( isset( $data['feedback'] ) && ! self::valid_feedback( $data['feedback'] ) ) {
+			update_option( self::LAST, array( 'time' => current_time( 'mysql', true ), 'result' => 'Invalid Agency feedback' ), false );
+			return new \WP_Error( 'wphmc_bad_feedback', 'The Manager returned invalid feedback.' );
+		}
 		$previous = get_option( self::ASSESSMENT, array() );
 		$assessment['received_at'] = current_time( 'mysql', true );
 		update_option( self::ASSESSMENT, $assessment, false );
+		if ( isset( $data['feedback'] ) ) {
+			update_option( self::FEEDBACK, $data['feedback'], false );
+			self::notify_feedback( $data['feedback'] );
+		}
 		update_option( self::LAST, array( 'time' => $assessment['received_at'], 'result' => 'Delivered and assessed' ), false );
 		self::notify_if_changed( $assessment, is_array( $previous ) ? $previous : array() );
 		return true;
@@ -193,6 +212,32 @@ final class WPHMC_Connector {
 			if ( ! is_array( $issue ) || ! isset( $issue['id'], $issue['status'] ) || ! isset( self::GUIDES[ $issue['id'] ] ) || ! in_array( $issue['status'], array( 'warning', 'fail' ), true ) ) { return false; }
 		}
 		return true;
+	}
+
+	private static function valid_feedback( mixed $feedback ): bool {
+		return is_array( $feedback )
+			&& count( $feedback ) === 4
+			&& is_int( $feedback['id'] ?? null )
+			&& $feedback['id'] > 0
+			&& is_string( $feedback['message'] ?? null )
+			&& '' !== trim( $feedback['message'] )
+			&& strlen( $feedback['message'] ) <= 4000
+			&& is_string( $feedback['report_at'] ?? null )
+			&& (bool) preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $feedback['report_at'] )
+			&& is_string( $feedback['created_at'] ?? null )
+			&& (bool) preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $feedback['created_at'] );
+	}
+
+	private static function notify_feedback( array $feedback ): void {
+		$notify = get_option( self::NOTIFY, array() );
+		$email = is_array( $notify ) ? sanitize_email( $notify['email'] ?? '' ) : '';
+		if ( ! is_array( $notify ) || empty( $notify['feedback_enabled'] ) || ! is_email( $email ) || (int) get_option( self::LAST_FEEDBACK_NOTIFIED, 0 ) >= $feedback['id'] ) {
+			return;
+		}
+		$body = "Your agency sent feedback for " . get_bloginfo( 'name' ) . " about the report from " . $feedback['report_at'] . " UTC:\n\n" . $feedback['message'] . "\n\n" . admin_url( 'options-general.php?page=wphmc-connector' );
+		if ( wp_mail( $email, '[Health Connector] New agency feedback', $body ) ) {
+			update_option( self::LAST_FEEDBACK_NOTIFIED, $feedback['id'], false );
+		}
 	}
 
 	private static function notify_if_changed( array $assessment, array $previous ): void {
@@ -251,7 +296,7 @@ final class WPHMC_Connector {
 			$earned += $weights[ $id ] * ( 'pass' === $status ? 100 : ( 'warning' === $status ? 50 : 0 ) );
 			if ( 'pass' !== $status ) { $issues[] = array( 'id' => $id, 'status' => $status ); }
 		}
-		return array( 'score' => $run ? (int) round( $earned / $run ) : 0, 'coverage' => (int) round( 100 * $run / $total ), 'issues' => $issues, 'plugin_version' => '0.4.0' );
+		return array( 'score' => $run ? (int) round( $earned / $run ) : 0, 'coverage' => (int) round( 100 * $run / $total ), 'issues' => $issues, 'plugin_version' => self::VERSION );
 	}
 }
 
