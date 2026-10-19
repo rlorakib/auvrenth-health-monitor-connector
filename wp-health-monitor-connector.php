@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Health Monitor Connector
- * Description: Sends a small signed health summary to a paired WP Health Monitor Manager.
+ * Description: Sends a small signed health summary to a paired Auvrenth Health Monitor Manager.
  * Version: 0.1.0
  * Requires at least: 6.0
  * Requires PHP: 8.0

@@ -8,11 +8,11 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Connect a client WordPress site to a selected WP Health Monitor Agency Manager with small, signed health reports.
+Connect a client WordPress site to a selected Auvrenth Health Monitor Agency Manager with small, signed health reports.
 
 == Description ==
 
-Health Monitor Connector runs on a client site. An administrator pairs it with an Agency Manager on another WordPress site using a one-time code. The Connector then sends a concise health summary each day through WP-Cron, or immediately when an administrator selects Send report now. The main WP Health Monitor plugin is needed on the agency site, but not on the client site.
+Health Monitor Connector runs on a client site. An administrator pairs it with an Agency Manager on another WordPress site using a one-time code. The Connector then sends a concise health summary each day through WP-Cron, or immediately when an administrator selects Send report now. The main Auvrenth Health Monitor plugin is needed on the agency site, but not on the client site.
 
 = Client features =
 
@@ -47,7 +47,7 @@ Local Disconnect removes the client's stored connection credentials, but does no
 
 = Does the client site need the main plugin or Pro? =
 
-No. The Connector runs separately on the client. The selected agency site must run WP Health Monitor with Agency Manager enabled.
+No. The Connector runs separately on the client. The selected agency site must run Auvrenth Health Monitor with Agency Manager enabled.
 
 = Does the agency manually approve every report? =
 
