@@ -1,8 +1,8 @@
 <?php
-/** Run with wp eval-file wp-content/plugins/wp-health-monitor-connector/tests/notification.php --skip-plugins --skip-themes. */
+/** Run with wp eval-file wp-content/plugins/auvrenth-health-monitor-connector/tests/notification.php --skip-plugins --skip-themes. */
 
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) { exit; }
-require dirname( __DIR__ ) . '/wp-health-monitor-connector.php';
+require dirname( __DIR__ ) . '/auvrenth-health-monitor-connector.php';
 
 $names = array( 'wphmc_notify', 'wphmc_last_notified', 'wphmc_last_feedback_notified' );
 $before = array();

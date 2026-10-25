@@ -2,7 +2,7 @@
 
 Install this folder as a separate WordPress plugin on a client site. It does not require the main plugin on the client.
 
-Download the installable `wp-health-monitor-connector.zip` from the [latest GitHub release](https://github.com/rlorakib/wp-health-monitor-connector/releases/latest), then upload it through **Plugins → Add New → Upload Plugin**. The agency Manager administrator supplies the one-time pairing code separately. A GitHub source archive is not the release ZIP.
+Download the installable `auvrenth-health-monitor-connector.zip` from the [latest GitHub release](https://github.com/rlorakib/auvrenth-health-monitor-connector/releases/latest), then upload it through **Plugins → Add New → Upload Plugin**. The agency Manager administrator supplies the one-time pairing code separately. A GitHub source archive is not the release ZIP.
 
 1. Activate **Health Monitor Connector**.
 2. Ask the agency Manager administrator for a fresh pairing code.
@@ -19,6 +19,6 @@ If pairing fails, check HTTPS on both sites, expiry and prior use of the code, R
 
 ## Development and releases
 
-This repository is the source of the client Connector. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1` to create `dist/wp-health-monitor-connector.zip`. The archive contains one `wp-health-monitor-connector/` folder and excludes tests and development files. Tagging a commit with `v` followed by the plugin version builds the same ZIP and attaches it to a GitHub release.
+This repository is the source of the client Connector. Run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1` to create `dist/auvrenth-health-monitor-connector.zip`. The archive contains one `auvrenth-health-monitor-connector/` folder and excludes tests and development files. Tagging a commit with `v` followed by the plugin version builds the same ZIP and attaches it to a GitHub release.
 
-Run `php tests/assessment.php` and, from a WordPress root, `wp eval-file wp-content/plugins/wp-health-monitor-connector/tests/send-feedback.php --skip-plugins --skip-themes` and `wp eval-file wp-content/plugins/wp-health-monitor-connector/tests/notification.php --skip-plugins --skip-themes` before release. The WordPress tests intercept HTTP and email; they do not verify live delivery.
+Run `php tests/assessment.php` and, from a WordPress root, `wp eval-file wp-content/plugins/auvrenth-health-monitor-connector/tests/send-feedback.php --skip-plugins --skip-themes` and `wp eval-file wp-content/plugins/auvrenth-health-monitor-connector/tests/notification.php --skip-plugins --skip-themes` before release. The WordPress tests intercept HTTP and email; they do not verify live delivery.

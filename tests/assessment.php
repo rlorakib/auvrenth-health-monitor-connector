@@ -6,7 +6,7 @@ function register_activation_hook( $file, $callback ): void {}
 function register_deactivation_hook( $file, $callback ): void {}
 function add_action( $hook, $callback ): void {}
 
-require dirname( __DIR__ ) . '/wp-health-monitor-connector.php';
+require dirname( __DIR__ ) . '/auvrenth-health-monitor-connector.php';
 
 $validate = new ReflectionMethod( WPHMC_Connector::class, 'valid_assessment' );
 $report = array( 'score' => 60, 'coverage' => 100, 'issues' => array( array( 'id' => 'plugin_updates', 'status' => 'warning' ) ) );

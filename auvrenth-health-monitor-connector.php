@@ -7,7 +7,7 @@
  * Requires PHP: 8.0
  * Author: Auvrenth Studio
  * License: GPL-2.0-or-later
- * Text Domain: wp-health-monitor-connector
+ * Text Domain: auvrenth-health-monitor-connector
  */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
